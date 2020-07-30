@@ -30,7 +30,9 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerListener;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.util.math.BlockPos;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.tuple.MutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
@@ -121,7 +123,7 @@ public class BuiltScreenHandler extends ScreenHandler implements ExtendedScreenH
 	public void sendContentUpdates() {
 		super.sendContentUpdates();
 
-		for (final ScreenHandlerListener listener : ((AccessorScreenHandler)(this)).getListeners()) {
+		for (final ScreenHandlerListener listener : ((AccessorScreenHandler) (this)).getListeners()) {
 
 			int i = 0;
 			if (!this.shortValues.isEmpty()) {
@@ -153,8 +155,8 @@ public class BuiltScreenHandler extends ScreenHandler implements ExtendedScreenH
 				int objects = 0;
 				for (final MutableTriple<Supplier, Consumer, Object> value : this.objectValues) {
 					final Object supplied = value.getLeft().get();
-					if(supplied != value.getRight()){
-						sendObject(listener,this, objects, supplied);
+					if (supplied != value.getRight()) {
+						sendObject(listener, this, objects, supplied);
 						value.setRight(supplied);
 					}
 					objects++;
@@ -278,7 +280,7 @@ public class BuiltScreenHandler extends ScreenHandler implements ExtendedScreenH
 				final Slot slot = this.slots.get(slotIndex);
 				final ItemStack stackInSlot = slot.getStack();
 				if (!stackInSlot.isEmpty() && ItemUtils.isItemEqual(stackInSlot, stackToShift, true, true)
-					&& slot.canInsert(stackToShift)) {
+						&& slot.canInsert(stackToShift)) {
 					final int resultingStackSize = stackInSlot.getCount() + stackToShift.getCount();
 					final int max = Math.min(stackToShift.getMaxCount(), slot.getMaxStackAmount());
 					if (resultingStackSize <= max) {
@@ -314,7 +316,7 @@ public class BuiltScreenHandler extends ScreenHandler implements ExtendedScreenH
 	}
 
 	private boolean shiftToBlockEntity(final ItemStack stackToShift) {
-		if(!blockEntity.getOptionalInventory().isPresent()){
+		if (!blockEntity.getOptionalInventory().isPresent()) {
 			return false;
 		}
 		for (final Range<Integer> range : this.blockEntitySlotRanges) {
@@ -341,5 +343,24 @@ public class BuiltScreenHandler extends ScreenHandler implements ExtendedScreenH
 	@Override
 	public Slot addSlot(Slot slotIn) {
 		return super.addSlot(slotIn);
+	}
+
+	public MachineBaseBlockEntity getBlockEntity() {
+		return blockEntity;
+	}
+
+	public BlockPos getPos() {
+		return getBlockEntity().getPos();
+	}
+
+	ScreenHandlerType<BuiltScreenHandler> type = null;
+
+	public void setType(ScreenHandlerType<BuiltScreenHandler> type) {
+		this.type = type;
+	}
+
+	@Override
+	public ScreenHandlerType<BuiltScreenHandler> getType() {
+		return type;
 	}
 }
